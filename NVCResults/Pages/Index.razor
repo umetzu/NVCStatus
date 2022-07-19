@@ -1,0 +1,178 @@
+﻿@page "/"
+
+<PageTitle>NVC forecast</PageTitle>
+
+@using NVCResults.Data
+@inject NVCForecastService ForecastService
+
+<h1>NVC Status</h1>
+
+<p>Updated on @currentDateLog</p>
+<p>Cases created between 09-April-2020 and 17-June-2020 (calculated)</p>
+
+<p><a class="sort-link" onclick="@(() => ChangeLog("07/12/2022"))">07/12/2022</a> | <a class="sort-link" onclick="@(() => ChangeLog("07/19/2022"))">07/19/2022</a></p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <span class="sort-link">Status</span>
+                </th>
+                <th>
+                    <span class="sort-link">Count</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts.GroupBy(x => x.nvcCaseInfo?.status).Select(x => new { status = x?.Key, count = x?.Count() } ).OrderBy(x => x.status ))
+            {
+                <tr>
+                    <td>@forecast.status</td>
+                    <td>@forecast.count</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total</td>
+                <td>@forecasts.Count</td>
+            </tr>
+        </tfoot>
+    </table>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("caseNumber"))">Case Number</a>
+                </th>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("status"))">Status</a>
+                </th>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("createdDate"))">Created Date</a>
+                </th>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("lastUpdatedDate"))">Updated Date</a>
+                </th>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("estimatedDate"))">Calculated Date</a>
+                </th>
+                <th>
+                    <a class="sort-link" onclick="@(() => SortTable("daysPassed"))">Days Passed</a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.nvcCaseInfo?.caseNumber</td>
+                    <td>@forecast.nvcCaseInfo?.status</td>
+                    <td>@forecast.nvcCaseInfo?.createdDate</td>
+                    <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
+                    <td>@forecast.nvcCaseInfo?.estimatedDate</td>
+                    <td>@forecast.nvcCaseInfo?.daysPassed</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IList<Root>? forecasts;
+    private bool IsSortedAscending = true;
+    private string CurrentSortColumn = "caseNumber";
+    private string currentDateLog = "07/12/2022";
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await ForecastService.GetForecastAsync(currentDateLog);
+    }
+
+    private async void ChangeLog(string logDate)
+    {
+        currentDateLog = logDate;
+
+        forecasts = await ForecastService.GetForecastAsync(currentDateLog);
+    }
+
+    private void SortTable(string columnName)
+    {
+        if (columnName == CurrentSortColumn)
+        {
+            IsSortedAscending = !IsSortedAscending;
+        }
+        else
+        {
+            IsSortedAscending = true;
+        }
+
+        CurrentSortColumn = columnName;
+
+        if (IsSortedAscending)
+        {
+            SortForecast(columnName);
+        }
+        else
+        {
+            SortForecastDescending(columnName);
+        }
+    }
+
+    private void SortForecast(string columnName)
+    {
+        switch (columnName)
+        {
+            case "caseNumber":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.caseNumber).ToList();
+                break;
+            case "status":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.status).ToList();
+                break;
+            case "createdDate":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.createdDate).ToList();
+                break;
+            case "lastUpdatedDate":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.lastUpdatedDate).ToList();
+                break;
+            case "estimatedDate":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.estimatedDate).ToList();
+                break;
+            case "daysPassed":
+                forecasts = forecasts?.OrderBy(x => x.nvcCaseInfo.daysPassed).ToList();
+                break;
+        }
+    }
+
+    private void SortForecastDescending(string columnName)
+    {
+        switch (columnName)
+        {
+            case "caseNumber":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.caseNumber).ToList();
+                break;
+            case "status":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.status).ToList();
+                break;
+            case "createdDate":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.createdDate).ToList();
+                break;
+            case "lastUpdatedDate":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.lastUpdatedDate).ToList();
+                break;
+            case "estimatedDate":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.estimatedDate).ToList();
+                break;
+            case "daysPassed":
+                forecasts = forecasts?.OrderByDescending(x => x.nvcCaseInfo.daysPassed).ToList();
+                break;
+        }
+    }
+}
