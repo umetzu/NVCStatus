@@ -7,14 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\logs\2022-07-12.log" />
+    <Content Remove="wwwroot\logs\2022-07-19.log" />
+    <Content Remove="wwwroot\logs\2022-08-02.log" />
+    <Content Remove="wwwroot\logs\2022-08-09.log" />
     <Content Remove="wwwroot\logs\nvc-1.log" />
+    <Content Remove="wwwroot\logs\nvc-2.log" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\logs\nvc-1.log">
+    <None Include="wwwroot\logs\2022-07-12.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="wwwroot\logs\nvc.log">
+    <None Include="wwwroot\logs\2022-07-19.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\logs\2022-08-02.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\logs\2022-08-09.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

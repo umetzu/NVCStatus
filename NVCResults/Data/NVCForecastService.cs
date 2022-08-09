@@ -4,13 +4,22 @@ namespace NVCResults.Data
 {
     public class NVCForecastService
     {
+        public List<string> GetLogs()
+        {
+            var result = new List<string>();
+
+            var nvcLogPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "logs");
+
+            result = Directory.GetFiles(nvcLogPath).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+
+            return result;
+        }
+
         public Task<List<Root>> GetForecastAsync(string dateLog)
         {
             var results = new List<Root>();
 
-            var suffix = dateLog == "07/12/2022" ? "" : "-1";
-
-            var nvcLogPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "logs", $"nvc{suffix}.log");
+            var nvcLogPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "logs", $"{dateLog}.log");
 
             var nvcLog = System.IO.File.ReadAllLines(nvcLogPath);
 

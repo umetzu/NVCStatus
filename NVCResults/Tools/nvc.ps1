@@ -3,11 +3,11 @@ $outputFile = "C:\Users\Umetzu\Downloads\nvc.log"
 
 #$k = 0
 
-#for($i=600; $i -lt 670; $i++) #501 680
-for($i=668; $i -lt 669; $i++)
+for($i=600; $i -lt 670; $i++) #501 680
+#for($i=668; $i -lt 669; $i++)
 {
-    #$j = 1 # 1
-    $j = 18 # 1
+    $j = 1 # 1
+    #$j = 18 # 1
     $lastError = ""
     
     $ProgressPreference = 'SilentlyContinue'
@@ -29,9 +29,11 @@ for($i=668; $i -lt 669; $i++)
         if (!$errorInvoke) {
             $lastError = Get-Content $tempFile | Where-Object {$_ -like ‘*Your search did not*’}
             $wrongCode = Get-Content $tempFile | Where-Object {$_ -like ‘*The code entered does not*’}
+            $wrongCodeX = Get-Content $tempFile | Where-Object {$_ -like ‘*Enter the code as shown*’}
+            $timeoutExp = Get-Content $tempFile | Where-Object {$_ -like ‘*Navigation timeout of*’}
             $wrongDom = Get-Content $tempFile | Where-Object {$_ -like ‘*DOM.describeNode*’}
 
-            if ($wrongCode -or $wrongDom) 
+            if ($wrongCode -or $wrongDom -or $wrongCodeX -or $timeoutExp) 
             {
                 $j--
             } else {
@@ -47,6 +49,7 @@ for($i=668; $i -lt 669; $i++)
 }
 
 #{"error":true,"errorMessage":"The code entered does not match the code displayed on the page."} retry
+#{"error":true,"errorMessage":"Enter the code as shown is required."} retry
 #{"error":true,"errorMessage":"ProtocolError: Protocol error (DOM.describeNode): Cannot find context with specified id"} skip/retry?
 #{"error":true,"errorMessage":"Error: Error: failed to find element matching selector \"#ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblStatus\""} skip
 #{"error":true,"errorMessage":"TimeoutError: waiting for selector `#c_status_ctl00_contentplaceholder1_defaultcaptcha_CaptchaImageDiv` failed: timeout 30000ms exceeded"}

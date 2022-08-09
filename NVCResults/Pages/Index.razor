@@ -10,14 +10,19 @@
 <p>Updated on @currentDateLog</p>
 <p>Cases created between 09-April-2020 and 17-June-2020 (calculated)</p>
 
-<p><a class="sort-link" onclick="@(() => ChangeLog("07/12/2022"))">07/12/2022</a> | <a class="sort-link" onclick="@(() => ChangeLog("07/19/2022"))">07/19/2022</a></p>
-
-@if (forecasts == null)
+@if (forecasts == null || logs == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    <p>
+        @foreach (var log in logs)
+        {
+            <a class="sort-link" onclick="@(() => ChangeLog(@log))">@log</a> <span> | </span>
+        }
+    </p>
+
     <table class="table">
         <thead>
             <tr>
@@ -86,13 +91,16 @@ else
 }
 
 @code {
-    private IList<Root>? forecasts;
+    private List<Root>? forecasts;
+    private List<string>? logs;
     private bool IsSortedAscending = true;
     private string CurrentSortColumn = "caseNumber";
-    private string currentDateLog = "07/12/2022";
+    private string currentDateLog = "";
 
     protected override async Task OnInitializedAsync()
     {
+        logs = ForecastService.GetLogs();
+        currentDateLog = logs.FirstOrDefault() ?? "";
         forecasts = await ForecastService.GetForecastAsync(currentDateLog);
     }
 
@@ -101,6 +109,8 @@ else
         currentDateLog = logDate;
 
         forecasts = await ForecastService.GetForecastAsync(currentDateLog);
+
+        StateHasChanged();
     }
 
     private void SortTable(string columnName)
