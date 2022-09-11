@@ -188,9 +188,16 @@ else
     protected override async Task OnInitializedAsync()
     {
         logs = ForecastService.GetLogs();
-        currentDateLog = logs.FirstOrDefault() ?? "";
-        forecasts = await ForecastService.GetForecastAsync(currentDateLog, logs);
-        forecastSummary = ForecastService.GetSummary(forecasts);
+
+        if (logs.Count > 0)
+        {
+            int defaultIndex = logs.Count - (logs.Count > 2 ? 2 : 1);
+
+            currentDateLog = logs.ElementAt(defaultIndex);
+
+            forecasts = await ForecastService.GetForecastAsync(currentDateLog, logs);
+            forecastSummary = ForecastService.GetSummary(forecasts);
+        }
     }
 
     private async void ChangeLog(string logDate)
