@@ -32,8 +32,9 @@ for($i=600; $i -lt 670; $i++) #501 680
             $wrongCodeX = Get-Content $tempFile | Where-Object {$_ -like ‘*Enter the code as shown*’}
             $timeoutExp = Get-Content $tempFile | Where-Object {$_ -like ‘*Navigation timeout of*’}
             $wrongDom = Get-Content $tempFile | Where-Object {$_ -like ‘*DOM.describeNode*’}
+            = Get-Content $tempFile | Where-Object {$_ -like ‘*waiting for selector*’}
 
-            if ($wrongCode -or $wrongDom -or $wrongCodeX -or $timeoutExp) 
+            if ($wrongCode -or $wrongDom -or $wrongCodeX -or $timeoutExp -or $timeoutSelector) 
             {
                 $j--
             } else {
@@ -53,5 +54,5 @@ for($i=600; $i -lt 670; $i++) #501 680
 #{"error":true,"errorMessage":"ProtocolError: Protocol error (DOM.describeNode): Cannot find context with specified id"} skip/retry?
 #{"error":true,"errorMessage":"Error: Error: failed to find element matching selector \"#ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblStatus\""} skip
 #{"error":true,"errorMessage":"TimeoutError: waiting for selector `#c_status_ctl00_contentplaceholder1_defaultcaptcha_CaptchaImageDiv` failed: timeout 30000ms exceeded"}
-
+#{"error":true,"errorMessage":"waiting for selector `#ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblStatus` failed: timeout 30000ms exceeded"}
 #{"error":true,"errorMessage":"Your search did not return any data."}  next $i
