@@ -90,6 +90,8 @@ namespace NVCResults.Data
                     else
                     {
                         current.nvcCaseInfo.nextStatus = next.nvcCaseInfo.status;
+                        current.nvcCaseInfo.createdDate ??= next.nvcCaseInfo.createdDate;
+                        current.nvcCaseInfo.lastUpdatedDate = next.nvcCaseInfo.lastUpdatedDate;
                     }
                 }
 
@@ -117,6 +119,8 @@ namespace NVCResults.Data
                     else
                     {
                         current.nvcCaseInfo.previousStatus = previous.nvcCaseInfo.status;
+                        current.nvcCaseInfo.createdDate ??= previous.nvcCaseInfo.createdDate;
+                        current.nvcCaseInfo.lastUpdatedDate = previous.nvcCaseInfo.lastUpdatedDate;
                     }
                 }
 
