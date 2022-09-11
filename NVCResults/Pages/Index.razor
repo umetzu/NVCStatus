@@ -7,7 +7,6 @@
 
 <h1>NVC Status</h1>
 
-<p>Updated on @currentDateLog</p>
 <p>Cases created between 09-April-2020 and 17-June-2020 (calculated)</p>
 
 @if (forecasts == null || logs == null)
@@ -19,57 +18,134 @@ else
     <p>
         @foreach (var log in logs)
         {
-            <a class="sort-link" onclick="@(() => ChangeLog(@log))">@log</a> <span> | </span>
+            @if (currentDateLog == log)
+            {
+                <b>@log</b>
+            }
+            else
+            {
+                <a class="sort-link" onclick="@(() => ChangeLog(@log))">@log</a>
+            }
+
+            @if (logs.IndexOf(log) != logs.Count - 1)
+            {
+                <span> | </span>
+            }
         }
     </p>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    <span class="sort-link">Status</span>
-                </th>
-                <th>
-                    <span class="sort-link">Count</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts.GroupBy(x => x.nvcCaseInfo?.status).Select(x => new { status = x?.Key, count = x?.Count() } ).OrderBy(x => x.status ))
-            {
-                <tr>
-                    <td>@forecast.status</td>
-                    <td>@forecast.count</td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Total</td>
-                <td>@forecasts.Count</td>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="col-4">
+        @if (forecastSummary != null)
+        {
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            <span class="sort-link">Status</span>
+                        </th>
+                        <th>
+                            <span class="sort-link">Previous</span>
+                        </th>
+                        <th>
+                            <span class="sort-link">Count</span>
+                        </th>
+                        <th>
+                            <span class="sort-link">Next</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var forecast in forecastSummary)
+                    {
+                        if (forecast.Key != "Total")
+                        {
+                            <tr>
+                                <td>@forecast.Key</td>
+                                <td>
+                                    <span>@forecast.Value.Item1</span>
+                                    @if (forecastSummary["Total"].Item1 > 0 && forecast.Value.Item1 - forecast.Value.Item2 != 0)
+                                    {
+                                        <span class="lm-1 @(forecast.Value.Item1 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
+                                            (@(forecast.Value.Item1 - forecast.Value.Item2))
+                                        </span>
+                                    }
+                                </td>
+                                <td>@forecast.Value.Item2</td>
+                                <td>
+                                    <span>@forecast.Value.Item3</span>
+                                    @if (forecastSummary["Total"].Item3 > 0 && forecast.Value.Item3 - forecast.Value.Item2 != 0)
+                                    {
+                                        <span class="lm-1 @(forecast.Value.Item3 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
+                                            (@(forecast.Value.Item3 - forecast.Value.Item2))
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        <td>
+                            <span>@forecastSummary["Total"].Item1</span>
+                            @if (forecastSummary["Total"].Item1 > 0)
+                            {
+                                <span class="lm-1 @(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
+                                    (@(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2))
+                                </span>
+                            }
+                        </td>
+                        <td>@forecastSummary["Total"].Item2</td>
+                        <td>
+                            <span>@forecastSummary["Total"].Item3</span>
+                            @if (forecastSummary["Total"].Item3 > 0)
+                            {
+                                <span class="lm-1 @(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
+                                    (@(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2))
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+    </div>
+    <div class="col-2">
+        @if (distinctOnly)
+        {
+            <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show all</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show Distinct</button>
+        }
+    </div>
     <hr />
-    <table class="table">
+    <table class="table table-sm">
         <thead>
             <tr>
-                <th>
+                <th class="col-2">
                     <a class="sort-link" onclick="@(() => SortTable("caseNumber"))">Case Number</a>
                 </th>
-                <th>
+                <th class="col-1">
+                    <a class="sort-link" onclick="@(() => SortTable("previousStatus"))">Previous</a>
+                </th>
+                <th class="col-1">
                     <a class="sort-link" onclick="@(() => SortTable("status"))">Status</a>
                 </th>
-                <th>
+                <th class="col-1">
+                    <a class="sort-link" onclick="@(() => SortTable("nextStatus"))">Next</a>
+                </th>
+                <th class="col-2">
                     <a class="sort-link" onclick="@(() => SortTable("createdDate"))">Created Date</a>
                 </th>
-                <th>
+                <th class="col-2">
                     <a class="sort-link" onclick="@(() => SortTable("lastUpdatedDate"))">Updated Date</a>
                 </th>
-                <th>
+                <th class="col-2">
                     <a class="sort-link" onclick="@(() => SortTable("estimatedDate"))">Calculated Date</a>
                 </th>
-                <th>
+                <th class="col">
                     <a class="sort-link" onclick="@(() => SortTable("daysPassed"))">Days Passed</a>
                 </th>
             </tr>
@@ -77,14 +153,19 @@ else
         <tbody>
             @foreach (var forecast in forecasts)
             {
-                <tr>
-                    <td>@forecast.nvcCaseInfo?.caseNumber</td>
-                    <td>@forecast.nvcCaseInfo?.status</td>
-                    <td>@forecast.nvcCaseInfo?.createdDate</td>
-                    <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
-                    <td>@forecast.nvcCaseInfo?.estimatedDate</td>
-                    <td>@forecast.nvcCaseInfo?.daysPassed</td>
-                </tr>
+                @if (!distinctOnly || forecast.nvcCaseInfo!.isDistinct)
+                {
+                    <tr>
+                        <td>@forecast.nvcCaseInfo?.caseNumber</td>
+                        <td class="@forecast.nvcCaseInfo?.previousStatusClass">@forecast.nvcCaseInfo?.previousStatus</td>
+                        <td>@forecast.nvcCaseInfo?.status</td>
+                        <td class="@forecast.nvcCaseInfo?.nextStatusClass">@forecast.nvcCaseInfo?.nextStatus</td>
+                        <td>@forecast.nvcCaseInfo?.createdDate</td>
+                        <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
+                        <td>@forecast.nvcCaseInfo?.estimatedDate</td>
+                        <td>@forecast.nvcCaseInfo?.daysPassed</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
@@ -96,19 +177,28 @@ else
     private bool IsSortedAscending = true;
     private string CurrentSortColumn = "caseNumber";
     private string currentDateLog = "";
+    private bool distinctOnly = false;
+    private SortedDictionary<string, (int, int, int)>? forecastSummary;
+
+    private void ChangeDistinctOnly()
+    {
+        distinctOnly = !distinctOnly;
+    }
 
     protected override async Task OnInitializedAsync()
     {
         logs = ForecastService.GetLogs();
         currentDateLog = logs.FirstOrDefault() ?? "";
-        forecasts = await ForecastService.GetForecastAsync(currentDateLog);
+        forecasts = await ForecastService.GetForecastAsync(currentDateLog, logs);
+        forecastSummary = ForecastService.GetSummary(forecasts);
     }
 
     private async void ChangeLog(string logDate)
     {
         currentDateLog = logDate;
 
-        forecasts = await ForecastService.GetForecastAsync(currentDateLog);
+        forecasts = await ForecastService.GetForecastAsync(currentDateLog, logs!);
+        forecastSummary = ForecastService.GetSummary(forecasts);
 
         StateHasChanged();
     }
