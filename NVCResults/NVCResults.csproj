@@ -46,4 +46,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\js\bootstrap\" />
+  </ItemGroup>
+
 </Project>
