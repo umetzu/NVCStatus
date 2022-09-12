@@ -156,8 +156,8 @@ else
                                         <span>@forecast.Value.Item1</span>
                                         @if (forecastSummary["Total"].Item1 > 0 && forecast.Value.Item1 - forecast.Value.Item2 != 0)
                                         {
-                                            <span class="lm-1 @(forecast.Value.Item1 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
-                                                (@(forecast.Value.Item1 - forecast.Value.Item2))
+                                            <span class="lm-1 @(forecast.Value.Item1 - forecast.Value.Item2 > 0 ? "text-success" : forecast.Value.Item1 - forecast.Value.Item2 < 0 ? "text-danger" : "")">
+                                                (@((forecast.Value.Item1 - forecast.Value.Item2).ToString("+#;-#;0")))
                                             </span>
                                         }
                                     </td>
@@ -166,8 +166,8 @@ else
                                         <span>@forecast.Value.Item3</span>
                                         @if (forecastSummary["Total"].Item3 > 0 && forecast.Value.Item3 - forecast.Value.Item2 != 0)
                                         {
-                                            <span class="lm-1 @(forecast.Value.Item3 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
-                                                (@(forecast.Value.Item3 - forecast.Value.Item2))
+                                            <span class="lm-1 @(forecast.Value.Item3 - forecast.Value.Item2 > 0 ? "text-success" : forecast.Value.Item3 - forecast.Value.Item2 < 0 ? "text-danger" : "")">
+                                                (@((forecast.Value.Item3 - forecast.Value.Item2).ToString("+#;-#;0")))
                                             </span>
                                         }
                                     </td>
@@ -180,20 +180,20 @@ else
                             <td>Total</td>
                             <td>
                                 <span>@forecastSummary["Total"].Item1</span>
-                                @if (forecastSummary["Total"].Item1 > 0)
+                                @if (forecastSummary["Total"].Item1 > 0 && forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 != 0)
                                 {
-                                    <span class="lm-1 @(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
-                                        (@(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2))
+                                    <span class="lm-1 @(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 > 0 ? "text-success" : forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 < 0 ? "text-danger" : "")">
+                                        (@((forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2).ToString("+#;-#;0")))
                                     </span>
                                 }
                             </td>
                             <td>@forecastSummary["Total"].Item2</td>
                             <td>
                                 <span>@forecastSummary["Total"].Item3</span>
-                                @if (forecastSummary["Total"].Item3 > 0)
+                                @if (forecastSummary["Total"].Item3 > 0 && forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 != 0)
                                 {
-                                    <span class="lm-1 @(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
-                                        (@(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2))
+                                    <span class="lm-1 @(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 > 0 ? "text-success" : forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 < 0 ? "text-danger" : "")">
+                                        (@((forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2).ToString("+#;-#;0")))
                                     </span>
                                 }
                             </td>
