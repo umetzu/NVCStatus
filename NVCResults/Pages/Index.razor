@@ -39,16 +39,9 @@ else
             </p>
         </div>
         <div class="col d-flex justify-content-end">
-            <button class="btn btn-primary ms-auto p-2" @onclick="RefreshLogs" disabled="@ForecastService.RefreshingLogs">Sync Statuses</button>
+            <button class="btn btn-outline-danger ms-auto p-2" @onclick="RefreshLogs" disabled="@ForecastService.RefreshingLogs">Sync Statuses</button>
             &nbsp;
-            @if (showSummary)
-            {
-                <button type="button" class="btn btn-primary" @onclick="ChangeSummary">Hide summary</button>
-            }
-            else
-            {
-                <button type="button" class="btn btn-primary" @onclick="ChangeSummary">Show summary</button>
-            }
+            <button type="button" class="btn btn-primary" @onclick="ChangeSummary">Show summary</button>
             &nbsp;
             @if (distinctOnly)
             {
@@ -60,10 +53,79 @@ else
             }
         </div>
     </div>
-    @if (showSummary)
-    {
-        <div class="row d-flex justify-content-end">
-            <div class="col-5">
+
+    <hr />
+
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th class="col-2">
+                    <a class="sort-link" onclick="@(() => SortTable("caseNumber"))">Case Number</a>
+                </th>
+                <th class="col-1">
+                    <a class="sort-link" onclick="@(() => SortTable("previousStatus"))">Previous</a>
+                </th>
+                <th class="col-1">
+                    <a class="sort-link" onclick="@(() => SortTable("status"))">Status</a>
+                </th>
+                <th class="col-1">
+                    <a class="sort-link" onclick="@(() => SortTable("nextStatus"))">Next</a>
+                </th>
+                <th class="col-2">
+                    <a class="sort-link" onclick="@(() => SortTable("createdDate"))">Created Date</a>
+                </th>
+                <th class="col-2">
+                    <a class="sort-link" onclick="@(() => SortTable("lastUpdatedDate"))">Updated Date</a>
+                </th>
+                <th class="col-2">
+                    <a class="sort-link" onclick="@(() => SortTable("estimatedDate"))">Calculated Date</a>
+                </th>
+                <th class="col">
+                    <a class="sort-link" onclick="@(() => SortTable("daysPassed"))">Days Passed</a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts.Where(x => x.nvcCaseInfo!.caseNumber == "LMA2020656002"))
+            {
+                <tr class="table-warning">
+                    <td>@forecast.nvcCaseInfo?.caseNumber</td>
+                    <td class="@forecast.nvcCaseInfo?.previousStatusClass">@forecast.nvcCaseInfo?.previousStatus</td>
+                    <td>@forecast.nvcCaseInfo?.status</td>
+                    <td class="@forecast.nvcCaseInfo?.nextStatusClass">@forecast.nvcCaseInfo?.nextStatus</td>
+                    <td>@forecast.nvcCaseInfo?.createdDate</td>
+                    <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
+                    <td>@forecast.nvcCaseInfo?.estimatedDate</td>
+                    <td>@forecast.nvcCaseInfo?.daysPassed</td>
+                </tr>
+            }
+
+            @foreach (var forecast in forecasts)
+            {
+                @if (!distinctOnly || forecast.nvcCaseInfo!.isDistinct)
+                {
+                    @if (forecast.nvcCaseInfo!.caseNumber != "LMA2020656002")
+                    {
+                        <tr>
+                            <td>@forecast.nvcCaseInfo?.caseNumber</td>
+                        <td class="@forecast.nvcCaseInfo?.previousStatusClass">@forecast.nvcCaseInfo?.previousStatus</td>
+                        <td>@forecast.nvcCaseInfo?.status</td>
+                        <td class="@forecast.nvcCaseInfo?.nextStatusClass">@forecast.nvcCaseInfo?.nextStatus</td>
+                        <td>@forecast.nvcCaseInfo?.createdDate</td>
+                        <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
+                        <td>@forecast.nvcCaseInfo?.estimatedDate</td>
+                        <td>@forecast.nvcCaseInfo?.daysPassed</td>
+                    </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<div class="modal fade" id="mimodal" tabindex="-1">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content p-5">
             @if (forecastSummary != null)
             {
                 <table class="table table-sm">
@@ -86,7 +148,7 @@ else
                     <tbody>
                         @foreach (var forecast in forecastSummary)
                         {
-                            if (forecast.Key != "Total")
+                            @if (forecast.Key != "Total")
                             {
                                 <tr>
                                     <td>@forecast.Key</td>
@@ -140,59 +202,8 @@ else
                 </table>
             }
         </div>
-        </div>
-    }
-
-    <hr />
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th class="col-2">
-                    <a class="sort-link" onclick="@(() => SortTable("caseNumber"))">Case Number</a>
-                </th>
-                <th class="col-1">
-                    <a class="sort-link" onclick="@(() => SortTable("previousStatus"))">Previous</a>
-                </th>
-                <th class="col-1">
-                    <a class="sort-link" onclick="@(() => SortTable("status"))">Status</a>
-                </th>
-                <th class="col-1">
-                    <a class="sort-link" onclick="@(() => SortTable("nextStatus"))">Next</a>
-                </th>
-                <th class="col-2">
-                    <a class="sort-link" onclick="@(() => SortTable("createdDate"))">Created Date</a>
-                </th>
-                <th class="col-2">
-                    <a class="sort-link" onclick="@(() => SortTable("lastUpdatedDate"))">Updated Date</a>
-                </th>
-                <th class="col-2">
-                    <a class="sort-link" onclick="@(() => SortTable("estimatedDate"))">Calculated Date</a>
-                </th>
-                <th class="col">
-                    <a class="sort-link" onclick="@(() => SortTable("daysPassed"))">Days Passed</a>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                @if (!distinctOnly || forecast.nvcCaseInfo!.isDistinct)
-                {
-                    <tr>
-                        <td>@forecast.nvcCaseInfo?.caseNumber</td>
-                        <td class="@forecast.nvcCaseInfo?.previousStatusClass">@forecast.nvcCaseInfo?.previousStatus</td>
-                        <td>@forecast.nvcCaseInfo?.status</td>
-                        <td class="@forecast.nvcCaseInfo?.nextStatusClass">@forecast.nvcCaseInfo?.nextStatus</td>
-                        <td>@forecast.nvcCaseInfo?.createdDate</td>
-                        <td>@forecast.nvcCaseInfo?.lastUpdatedDate</td>
-                        <td>@forecast.nvcCaseInfo?.estimatedDate</td>
-                        <td>@forecast.nvcCaseInfo?.daysPassed</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-}
+    </div>
+</div>
 
 @code {
     private List<Root>? forecasts;
@@ -201,7 +212,7 @@ else
     private string CurrentSortColumn = "caseNumber";
     private string currentDateLog = "";
     private bool distinctOnly = true;
-    private bool showSummary = true;
+    private string showSummaryClass = "";
     private SortedDictionary<string, (int, int, int)>? forecastSummary;
 
     void Refresh() { 
@@ -233,10 +244,10 @@ else
         distinctOnly = !distinctOnly;
     }
 
-    private void ChangeSummary()
+    private async Task ChangeSummary()
     {
-        showSummary = !showSummary;
-    }   
+        await JsRuntime.InvokeVoidAsync("BootstrapModal.ShowModal", "mimodal");
+    }
 
     protected override async Task OnInitializedAsync()
     {
