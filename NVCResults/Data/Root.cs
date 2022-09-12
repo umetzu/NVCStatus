@@ -48,7 +48,7 @@ namespace NVCResults.Data
                     result = previousStatus != status;
                 }
 
-                if (!result || !string.IsNullOrEmpty(nextStatus))
+                if (!result && !string.IsNullOrEmpty(nextStatus))
                 {
                     result = nextStatus != status;
                 }

@@ -1,15 +1,5 @@
-﻿#!/usr/bin/env pwsh
-
-$tempFile = "/var/nvc.tmp.log"
-$outputFile = "/var/nvc.log"
-
-if (Test-Path $tempFile) {
-  Remove-Item -Path $tempFile -Force
-}
-
-if (Test-Path $outputFile) {
-  Remove-Item -Path $outputFile -Force
-}
+﻿$tempFile = "C:\Users\Umetzu\Downloads\nvc.tmp.log"
+$outputFile = "C:\Users\Umetzu\Downloads\nvc.log"
 
 #$k = 0
 
@@ -17,7 +7,7 @@ for($i=600; $i -lt 670; $i++) #501 680
 #for($i=668; $i -lt 669; $i++)
 {
     $j = 1 # 1
-    #$j = 37 # 1
+    #$j = 36 # 1
     $lastError = ""
     
     $ProgressPreference = 'SilentlyContinue'
@@ -59,18 +49,6 @@ for($i=600; $i -lt 670; $i++) #501 680
     }
 }
 
-$currentDate = Get-Date -Format "yyyy-MM-dd"
-$destinationLog = '/var/www/nvc-umetzu/wwwroot/logs/' + $currentDate + '.log'
-
-Copy-Item $outputFile -Destination $destinationLog
-
-if (Test-Path $tempFile) {
-  Remove-Item -Path $tempFile -Force
-}
-
-if (Test-Path $outputFile) {
-  Remove-Item -Path $outputFile -Force
-}
 
 #{"error":true,"errorMessage":"The code entered does not match the code displayed on the page."} retry
 #{"error":true,"errorMessage":"Enter the code as shown is required."} retry

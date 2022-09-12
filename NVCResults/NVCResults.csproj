@@ -16,6 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Tools\nvc.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Tools\nvc.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\logs\2022-07-12.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -27,6 +37,12 @@
     </None>
     <None Include="wwwroot\logs\2022-08-09.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Tools\nvc-local.ps1">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

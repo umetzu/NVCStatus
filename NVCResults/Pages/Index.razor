@@ -1,4 +1,6 @@
-﻿@page "/"
+﻿@inject IJSRuntime JsRuntime
+@implements IDisposable
+@page "/"
 
 <PageTitle>NVC forecast</PageTitle>
 
@@ -15,111 +17,132 @@
 }
 else
 {
-    <p>
-        @foreach (var log in logs)
-        {
-            @if (currentDateLog == log)
+    <div class="row">
+        <div class="col">
+            <p class="py-2 m-0">
+                @foreach (var log in logs)
+                {
+                    @if (currentDateLog == log)
+                    {
+                        <b>@log</b>
+                    }
+                    else
+                    {
+                        <a class="sort-link" onclick="@(() => ChangeLog(@log))">@log</a>
+                    }
+
+                    @if (logs.IndexOf(log) != logs.Count - 1)
+                    {
+                        <span> | </span>
+                    }
+                }
+            </p>
+        </div>
+        <div class="col d-flex justify-content-end">
+            <button class="btn btn-primary ms-auto p-2" @onclick="RefreshLogs" disabled="@ForecastService.RefreshingLogs">Sync Statuses</button>
+            &nbsp;
+            @if (showSummary)
             {
-                <b>@log</b>
+                <button type="button" class="btn btn-primary" @onclick="ChangeSummary">Hide summary</button>
             }
             else
             {
-                <a class="sort-link" onclick="@(() => ChangeLog(@log))">@log</a>
+                <button type="button" class="btn btn-primary" @onclick="ChangeSummary">Show summary</button>
             }
-
-            @if (logs.IndexOf(log) != logs.Count - 1)
+            &nbsp;
+            @if (distinctOnly)
             {
-                <span> | </span>
+                <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show all</button>
             }
-        }
-    </p>
-    <div class="col-4">
-        @if (forecastSummary != null)
-        {
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>
-                            <span class="sort-link">Status</span>
-                        </th>
-                        <th>
-                            <span class="sort-link">Previous</span>
-                        </th>
-                        <th>
-                            <span class="sort-link">Count</span>
-                        </th>
-                        <th>
-                            <span class="sort-link">Next</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var forecast in forecastSummary)
-                    {
-                        if (forecast.Key != "Total")
+            else
+            {
+                <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show differences</button>
+            }
+        </div>
+    </div>
+    @if (showSummary)
+    {
+        <div class="row d-flex justify-content-end">
+            <div class="col-5">
+            @if (forecastSummary != null)
+            {
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span class="sort-link">Status</span>
+                            </th>
+                            <th>
+                                <span class="sort-link">Previous</span>
+                            </th>
+                            <th>
+                                <span class="sort-link">Count</span>
+                            </th>
+                            <th>
+                                <span class="sort-link">Next</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var forecast in forecastSummary)
                         {
-                            <tr>
-                                <td>@forecast.Key</td>
-                                <td>
-                                    <span>@forecast.Value.Item1</span>
-                                    @if (forecastSummary["Total"].Item1 > 0 && forecast.Value.Item1 - forecast.Value.Item2 != 0)
-                                    {
-                                        <span class="lm-1 @(forecast.Value.Item1 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
-                                            (@(forecast.Value.Item1 - forecast.Value.Item2))
-                                        </span>
-                                    }
-                                </td>
-                                <td>@forecast.Value.Item2</td>
-                                <td>
-                                    <span>@forecast.Value.Item3</span>
-                                    @if (forecastSummary["Total"].Item3 > 0 && forecast.Value.Item3 - forecast.Value.Item2 != 0)
-                                    {
-                                        <span class="lm-1 @(forecast.Value.Item3 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
-                                            (@(forecast.Value.Item3 - forecast.Value.Item2))
-                                        </span>
-                                    }
-                                </td>
-                            </tr>
+                            if (forecast.Key != "Total")
+                            {
+                                <tr>
+                                    <td>@forecast.Key</td>
+                                    <td>
+                                        <span>@forecast.Value.Item1</span>
+                                        @if (forecastSummary["Total"].Item1 > 0 && forecast.Value.Item1 - forecast.Value.Item2 != 0)
+                                        {
+                                            <span class="lm-1 @(forecast.Value.Item1 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
+                                                (@(forecast.Value.Item1 - forecast.Value.Item2))
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@forecast.Value.Item2</td>
+                                    <td>
+                                        <span>@forecast.Value.Item3</span>
+                                        @if (forecastSummary["Total"].Item3 > 0 && forecast.Value.Item3 - forecast.Value.Item2 != 0)
+                                        {
+                                            <span class="lm-1 @(forecast.Value.Item3 - forecast.Value.Item2 > 0 ? "text-success" : "text-danger")">
+                                                (@(forecast.Value.Item3 - forecast.Value.Item2))
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         }
-                    }
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td>Total</td>
-                        <td>
-                            <span>@forecastSummary["Total"].Item1</span>
-                            @if (forecastSummary["Total"].Item1 > 0)
-                            {
-                                <span class="lm-1 @(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
-                                    (@(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2))
-                                </span>
-                            }
-                        </td>
-                        <td>@forecastSummary["Total"].Item2</td>
-                        <td>
-                            <span>@forecastSummary["Total"].Item3</span>
-                            @if (forecastSummary["Total"].Item3 > 0)
-                            {
-                                <span class="lm-1 @(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
-                                    (@(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2))
-                                </span>
-                            }
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-        }
-    </div>
-    <div class="col-2">
-        @if (distinctOnly)
-        {
-            <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show all</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-primary" @onclick="ChangeDistinctOnly">Show Distinct</button>
-        }
-    </div>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Total</td>
+                            <td>
+                                <span>@forecastSummary["Total"].Item1</span>
+                                @if (forecastSummary["Total"].Item1 > 0)
+                                {
+                                    <span class="lm-1 @(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
+                                        (@(forecastSummary["Total"].Item1 - forecastSummary["Total"].Item2))
+                                    </span>
+                                }
+                            </td>
+                            <td>@forecastSummary["Total"].Item2</td>
+                            <td>
+                                <span>@forecastSummary["Total"].Item3</span>
+                                @if (forecastSummary["Total"].Item3 > 0)
+                                {
+                                    <span class="lm-1 @(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2 > 0 ? "text-success" : "text-danger")">
+                                        (@(forecastSummary["Total"].Item3 - forecastSummary["Total"].Item2))
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            }
+        </div>
+        </div>
+    }
+
     <hr />
     <table class="table table-sm">
         <thead>
@@ -177,13 +200,43 @@ else
     private bool IsSortedAscending = true;
     private string CurrentSortColumn = "caseNumber";
     private string currentDateLog = "";
-    private bool distinctOnly = false;
+    private bool distinctOnly = true;
+    private bool showSummary = true;
     private SortedDictionary<string, (int, int, int)>? forecastSummary;
+
+    void Refresh() { 
+        if (!ForecastService.RefreshingLogs)
+        {
+            OnInitializedAsync().Wait();
+        }
+        InvokeAsync(StateHasChanged); }
+    override protected void OnInitialized() => ForecastService.OnChange += Refresh;
+    void IDisposable.Dispose() => ForecastService.OnChange -= Refresh;
+
+    private async Task RefreshLogs()
+    {
+        //bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "This process will take a few hours, you can close the window. Do you want to continue?");
+        string confirmed = await JsRuntime.InvokeAsync<string>("prompt", "This process will take a few hours, you can close the window. Enter phrase to continue:");
+
+        if (confirmed == "dennis")
+        {
+            bool _ = await ForecastService.RefreshLogs().ConfigureAwait(false);
+        }
+        else 
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Processing.");
+        }
+    }
 
     private void ChangeDistinctOnly()
     {
         distinctOnly = !distinctOnly;
     }
+
+    private void ChangeSummary()
+    {
+        showSummary = !showSummary;
+    }   
 
     protected override async Task OnInitializedAsync()
     {

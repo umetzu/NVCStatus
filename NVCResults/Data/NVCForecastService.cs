@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 
@@ -14,6 +16,81 @@ namespace NVCResults.Data
             result = Directory.GetFiles(nvcLogPath).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
 
             return result;
+        }
+
+        public event Action? OnChange;
+        private bool refreshingLogs;
+        public bool RefreshingLogs
+        {
+            get => refreshingLogs; private set
+            {
+                refreshingLogs = value;
+                OnChange?.Invoke();
+            }
+        }
+
+        public async Task<bool> RefreshLogs()
+        {
+            if (RefreshingLogs)
+            {
+                return false;
+            }
+
+            try
+            {
+                RefreshingLogs = true;
+
+                var startInfo = new ProcessStartInfo()
+                {
+                    FileName = "/bin/bash",
+                    Arguments = string.Format("-c \"sudo {0} {1}\"", "/bin/pwsh", "/var/www/nvc-umetzu/Tools/nvc.ps1"),
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true, 
+                };
+
+                Process process = new()
+                {
+                    StartInfo = startInfo,
+                    EnableRaisingEvents = true
+                };
+
+                process.OutputDataReceived += (sender, data) => {
+                    Console.WriteLine(data.Data);
+                };
+
+                process.ErrorDataReceived += (sender, data) => {
+                    Console.WriteLine(data.Data);
+                };
+
+                process.Exited += (sender, args) => { RefreshingLogs = false; };
+
+                try
+                {
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    await process.WaitForExitAsync();
+                    process.WaitForExit();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                RefreshingLogs = false;
+            }
+
+            return false;
         }
 
         public SortedDictionary<string, (int, int, int)> GetSummary(List<Root> log)
