@@ -227,13 +227,13 @@ else
     private async Task RefreshLogs()
     {
         //bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "This process will take a few hours, you can close the window. Do you want to continue?");
-        string confirmed = await JsRuntime.InvokeAsync<string>("prompt", "This process will take a few hours, you can close the window. Enter phrase to continue:");
+        string? confirmed = await JsRuntime.InvokeAsync<string?>("prompt", "This process will take a few hours, you can close the window. Enter phrase to continue:");
 
         if (confirmed == "dennis")
         {
             bool _ = await ForecastService.RefreshLogs().ConfigureAwait(false);
         }
-        else 
+        else if (confirmed != null)
         {
             await JsRuntime.InvokeVoidAsync("alert", "Processing.");
         }
