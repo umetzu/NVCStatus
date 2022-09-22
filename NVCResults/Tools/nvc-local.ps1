@@ -15,7 +15,9 @@ for($i=600; $i -lt 670; $i++) #501 680
     while(!$lastError -and ($j -lt 100))  #100
     {
         $caseIndex = $j.ToString().PadLeft(3, '0')
-        $caseUrl = 'https://us-central1-admob-app-id-4102154173.cloudfunctions.net/getNVCcaseInfo?caseNumber=LMA2020' + $i + $caseIndex + '&applicationType=IV&location='
+        #$caseUrl = 'https://us-central1-admob-app-id-4102154173.cloudfunctions.net/getNVCcaseInfo?caseNumber=LMA2020' + $i + $caseIndex + '&applicationType=IV&location='
+        #$caseUrl = 'https://us-east1-admob-app-id-4102154173.cloudfunctions.net/getNVCcaseInfo?caseNumber=LMA2020' + $i + $caseIndex + '&applicationType=IV&location='
+        $caseUrl = 'https://europe-west1-admob-app-id-4102154173.cloudfunctions.net/getNVCcaseInfoWEST1/?caseNumber=LMA2020' + $i + $caseIndex + '&applicationType=IV&location='
 
         Write-Output $caseUrl
 
